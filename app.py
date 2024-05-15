@@ -1,4 +1,5 @@
 from flask import Flask, render_template, g, request
+from datetime import datetime
 import sqlite3
 
 app = Flask(__name__)
@@ -24,8 +25,12 @@ def close_db(error):
 
 
 
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def index():
+    if request.method == 'POST':
+        date = request.form['date']
+        dt = datetime.strptime(date,'%Y-%m-%d')
+        database_date=datetime.strftime(dt, '%Y%m%d')
     return render_template('home.html')
 
 
