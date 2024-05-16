@@ -46,6 +46,12 @@ def index():
         single_date['entry_date'] = datetime.strftime(d, '%B %d, %Y')
         pretty_results.append(single_date)
         #print(pretty_results)
+<<<<<<< HEAD
+=======
+
+
+    return render_template('home.html', results = pretty_results)
+>>>>>>> f294fa6b0a9122409fd0aec6c79ddbdf1f372abc
 
 
     return render_template('home.html', results = pretty_results)
@@ -56,10 +62,13 @@ def view(date):
     db =  get_db()
     cur = db.execute('select entry_date from log_date where entry_date = ?', [date])
     result = cur.fetchone()
-    #    return '<h1>The date is {}</h1>'.format(result['entry_date'])
-    d = datetime.strptime(str(result['entry_date']), '%Y%m%d') #convert string to datetime
-    pretty_date = datetime.strftime(d, '%B %d, %Y')
-    return render_template('day.html', date=pretty_date)
+    print(result)
+    return '<h1>The date is {}</h1>'.format(result['entrydate'])
+    return render_template('day.html')
+
+
+
+
 
 @app.route('/food',methods=['GET','POST'])
 def food():
