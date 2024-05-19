@@ -1,19 +1,10 @@
 from flask import Flask, render_template, g, request
 from datetime import datetime
 import sqlite3
+from database import connect_db, get_db
 
 app = Flask(__name__)
 
-
-def connect_db():
-    sql = sqlite3.connect('c:/git_repos/ufcFoodTracker/food_log.db')
-    sql.row_factory = sqlite3.Row
-    return sql
-
-def get_db():
-    if not hasattr(g, 'sqlite3'):
-        g.sqlite_db = connect_db()
-    return g.sqlite_db
 
 @app.teardown_appcontext
 def close_db(error):
@@ -32,7 +23,10 @@ def index():
         db.commit()
 
     #cur = db.execute('select entry_date from log_date order by entry_date desc')
-    cur = db.execute('select log_date.entry_date, sum(food.protein) as protein, sum(food.carbohydrates) as carbohydrates, sum(food.fat) as fat, sum(food.calories) as calories from log_date join food_date on  food_date.log_date_id = log_date.id JOIN food on food.id = food_date.food_id group by log_date.id order by log_date.entry_date desc')
+    cur = db.execute('''select log_date.entry_date, sum(food.protein) as protein, sum(food.carbohydrates) as carbohydrates,
+                    sum(food.fat) as fat, sum(food.calories) as calories 
+                    from log_date join food_date on  food_date.log_date_id = log_date.id 
+                    JOIN food on food.id = food_date.food_id group by log_date.id order by log_date.entry_date desc''')
     results = cur.fetchall()
 
     date_results = []
@@ -70,7 +64,10 @@ def view(date):
     food_cur = db.execute('select id, name from food')
     food_results = food_cur.fetchall()
 
-    log_cur = db.execute('select food.name, food.protein, food.carbohydrates, food.fat, food.calories from log_date join food_date on food_date.log_date_id = log_date.id join food on food.id = food_date.food_id where log_date.entry_date = ?', [date])
+    log_cur = db.execute('''select food.name, food.protein, food.carbohydrates, food.fat, food.calories 
+                        from log_date 
+                        join food_date on food_date.log_date_id = log_date.id 
+                        join food on food.id = food_date.food_id where log_date.entry_date = ?''', [date])
     log_results = log_cur.fetchall()
 
     totals = {}
@@ -86,7 +83,8 @@ def view(date):
     print(totals)
 
 
-    return render_template('day.html', entry_date=date_result['entry_date'],pretty_date=pretty_date, food_results=food_results, log_results=log_results, totals = totals)
+    return render_template('day.html', entry_date=date_result['entry_date'],pretty_date=pretty_date, \
+                           food_results=food_results, log_results=log_results, totals = totals)
 
 @app.route('/food',methods=['GET','POST'])
 def food():
@@ -112,17 +110,10 @@ def food():
 
 
 
-
-
-
-
 #my own stuff here.
 @app.route('/recipients')
 def recipients():
     return None
-
-
-
 
 
 
